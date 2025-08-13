@@ -1,0 +1,144 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Login & Signup</title>
+  <style>
+    body {
+      font-family: Arial, sans-serif;
+      background: #f0f2f5;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      height: 100vh;
+      margin: 0;
+    }
+
+    .container {
+      background: white;
+      padding: 2rem;
+      border-radius: 12px;
+      box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+      width: 300px;
+      text-align: center;
+    }
+
+    input {
+      width: 100%;
+      padding: 10px;
+      margin: 8px 0;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+    }
+
+    button {
+      width: 100%;
+      padding: 10px;
+      margin-top: 12px;
+      background: #4f46e5;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+    }
+
+    .toggle {
+      margin-top: 1rem;
+      color: #007bff;
+      cursor: pointer;
+    }
+
+    .toggle:hover {
+      text-decoration: underline;
+    }
+
+    .hidden {
+      display: none;
+    }
+
+    h2 {
+      margin-bottom: 1rem;
+    }
+  </style>
+</head>
+<body>
+
+
+  <nav id="main-nav" class="bg-indigo-600 text-white p-4 hidden">
+    <div class="container mx-auto flex justify-between items-center">
+        <div class="text-xl font-bold">SkillVerse</div>
+        <div class="flex space-x-4">
+            <button onclick="showPage('home')" class="px-3 py-2 rounded hover:bg-indigo-700">Home</button>
+            <button onclick="showPage('dashboard')" class="px-3 py-2 rounded hover:bg-indigo-700">Dashboard</button>
+            <button onclick="showPage('roadmap')" class="px-3 py-2 rounded hover:bg-indigo-700">Roadmap</button>
+            <button onclick="showPage('about')" class="px-3 py-2 rounded hover:bg-indigo-700">About</button>
+            <!-- <button onclick="logout()" class="px-3 py-2 rounded hover:bg-indigo-700">Logout</button> -->
+            <!-- <button onclick="showPage('log.html')"  class="px-3 py-2 rounded hover:bg-indigo-700">Logout</button> -->
+            <a href="log.html" class="px-3 py-2 rounded hover:bg-indigo-700">Logout</a>
+        </div>
+    </div>
+</nav>
+  <!-- Login / Signup Container -->
+  <div class="container" id="authContainer">
+    <div id="loginForm">
+      <h2>Login</h2>
+      <input type="text" id="loginUsername" placeholder="Username" />
+      <input type="password" id="loginPassword" placeholder="Password" />
+      <button onclick="handleLogin()">Login</button>
+      <div class="toggle" onclick="toggleForms()">Don't have an account? Sign Up</div>
+    </div>
+
+    <div id="signupForm" class="hidden">
+      <h2>Sign Up</h2>
+      <input type="text" id="signupUsername" placeholder="Username" />
+      <input type="text" id="signupEmail" placeholder="Email or Phone" />
+      <input type="password" id="signupPassword" placeholder="Password" />
+      <button onclick="handleSignup()">Sign Up</button>
+      <div class="toggle" onclick="toggleForms()">Already have an account? Login</div>
+    </div>
+  </div>
+
+  <script>
+    function toggleForms() {
+      document.getElementById("loginForm").classList.toggle("hidden");
+      document.getElementById("signupForm").classList.toggle("hidden");
+      document.getElementById("errorMsg").textContent = ""; // Clear errors
+    }
+  
+    function handleLogin() {
+      const username = document.getElementById("loginUsername").value.trim();
+      const password = document.getElementById("loginPassword").value.trim();
+      const errorMsg = document.getElementById("errorMsg");
+  
+      if (!username || !password) {
+        errorMsg.textContent = "Username and password are required!";
+        return;
+      }
+  
+      // Redirect if fields are filled
+      window.location.href = "index_project.html";
+    }
+  
+    // function handleSignup() {
+    //   toggleForms();
+    // }
+
+    
+  function handleSignup() {
+    const username = document.getElementById("signupUsername").value.trim();
+    const emailOrPhone = document.getElementById("signupEmail").value.trim();
+    const password = document.getElementById("signupPassword").value.trim();
+    const errorMsg = document.getElementById("signupErrorMsg");
+
+    if (!username || !emailOrPhone || !password) {
+      errorMsg.textContent = "All fields are required to sign up!";
+      return;
+    }
+
+    // On successful signup, go back to login
+    toggleForms();
+  }
+  </script>
+  
+</body>
+</html>

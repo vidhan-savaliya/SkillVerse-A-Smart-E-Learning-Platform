@@ -1,0 +1,1262 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Educational Platform</title>
+    <link href="https://cdn.jsdelivr.net/npm/tailwindcss@2.2.19/dist/tailwind.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/@fortawesome/fontawesome-free@6.0.0/css/all.min.css">
+    <style>
+        body {
+            font-family: 'Inter', sans-serif;
+            background-color: #f8f9fa;
+            color: #333;
+        }
+        .page {
+            display: none;
+            min-height: 100vh;
+        }
+        .active {
+            display: block;
+        }
+        .card {
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+        .card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+        }
+        .niche-card {
+            cursor: pointer;
+            transition: all 0.3s ease;
+        }
+        .niche-card:hover {
+            transform: scale(1.05);
+        }
+        .niche-card.selected {
+            border: 3px solid #4f46e5;
+            background-color: rgba(79, 70, 229, 0.1);
+        }
+        .chat-bot {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            z-index: 1000;
+        }
+        .chat-container {
+            position: fixed;
+            bottom: 100px;
+            right: 30px;
+            width: 350px;
+            height: 400px;
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: none;
+            z-index: 999;
+            overflow: hidden;
+        }
+        .progress-bar {
+            height: 8px;
+            background-color: #e2e8f0;
+            border-radius: 4px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background-color: #4f46e5;
+            border-radius: 4px;
+        }
+        .milestone {
+            position: relative;
+            padding-left: 30px;
+        }
+        .milestone:before {
+            content: '';
+            position: absolute;
+            left: 10px;
+            top: 5px;
+            height: 100%;
+            width: 2px;
+            background-color: #e2e8f0;
+        }
+        .milestone:after {
+            content: '';
+            position: absolute;
+            left: 6px;
+            top: 5px;
+            height: 10px;
+            width: 10px;
+            border-radius: 50%;
+            background-color: #4f46e5;
+        }
+        .milestone:last-child:before {
+            display: none;
+        }
+        @media print {
+            .page {
+                display: block;
+                page-break-after: avoid;
+                page-break-inside: avoid;
+            }
+            .chat-bot {
+                display: none;
+            }
+            nav {
+                display: none;
+            }
+        }
+
+        #chat-messages {
+  height: 300px; /* or any height you need */
+  overflow-y: auto;
+  padding: 1rem;
+}
+    </style>
+</head>
+<body>
+    <!-- Navigation -->
+    <nav id="main-nav" class="bg-indigo-600 text-white p-4 hidden">
+        <div class="container mx-auto flex justify-between items-center">
+            <div class="text-xl font-bold">SkillVerse</div>
+            <div class="flex space-x-4">
+                <button onclick="showPage('home')" class="px-3 py-2 rounded hover:bg-indigo-700">Home</button>
+                <button onclick="showPage('dashboard')" class="px-3 py-2 rounded hover:bg-indigo-700">Dashboard</button>
+                <button onclick="showPage('roadmap')" class="px-3 py-2 rounded hover:bg-indigo-700">Roadmap</button>
+                <button onclick="showPage('about')" class="px-3 py-2 rounded hover:bg-indigo-700">About</button>
+                <!-- <button onclick="logout()" class="px-3 py-2 rounded hover:bg-indigo-700">Logout</button> -->
+                <!-- <button onclick="showPage('log.html')"  class="px-3 py-2 rounded hover:bg-indigo-700">Logout</button> -->
+                <a href="log.html" class="px-3 py-2 rounded hover:bg-indigo-700">Logout</a>
+            </div>
+        </div>
+    </nav>
+
+    <!-- Login Page -->
+    <section id="login" class="page active">
+        <div class="min-h-screen flex flex-col items-center justify-center p-4">
+            <div class="w-full max-w-4xl bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="md:flex">
+                    <div class="md:w-1/2 bg-indigo-600 text-white p-8 flex flex-col justify-center">
+                        <h1 class="text-4xl font-bold mb-4">Welcome to SkillVerse</h1>
+                        <p class="text-lg mb-6">Start your learning journey by selecting your area of interest.</p>
+                        <p class="text-sm opacity-80">Discover courses tailored to your goals and advance your skills with our comprehensive learning paths.</p>
+                    </div>
+                    <div class="md:w-1/2 p-8">
+                        <h2 class="text-2xl font-bold mb-6 text-center">Choose Your Niche</h2>
+                        <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                            <div class="niche-card p-4 border rounded-lg text-center" data-niche="graphic-design">
+                                <i class="fas fa-palette text-3xl mb-2 text-indigo-500"></i>
+                                <h3 class="font-bold">Graphic Design</h3>
+                                <p class="text-sm text-gray-600">Unleash your creativity</p>
+                            </div>
+                            <div class="niche-card p-4 border rounded-lg text-center" data-niche="coding">
+                                <i class="fas fa-code text-3xl mb-2 text-indigo-500"></i>
+                                <h3 class="font-bold">Coding</h3>
+                                <p class="text-sm text-gray-600">Build software solutions</p>
+                            </div>
+                            <div class="niche-card p-4 border rounded-lg text-center" data-niche="web-development">
+                                <i class="fas fa-laptop-code text-3xl mb-2 text-indigo-500"></i>
+                                <h3 class="font-bold">Web Development</h3>
+                                <p class="text-sm text-gray-600">Create amazing websites</p>
+                            </div>
+                            <div class="niche-card p-4 border rounded-lg text-center" data-niche="technical">
+                                <i class="fas fa-cogs text-3xl mb-2 text-indigo-500"></i>
+                                <h3 class="font-bold">Technical</h3>
+                                <p class="text-sm text-gray-600">Master technical skills</p>
+                            </div>
+                        </div>
+                        <div class="mt-8">
+                            <button id="login-btn" class="w-full bg-indigo-600 text-white py-3 rounded-lg font-bold opacity-50 cursor-not-allowed" disabled>Continue to Platform</button>
+                            <p class="text-sm text-center mt-4 text-gray-600">Please select a niche to continue</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Home Page -->
+    <section id="home" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-8 text-center">Welcome to Your Learning Journey</h1>
+            
+            <div class="mb-10">
+                <h2 class="text-2xl font-bold mb-4">Recommended Courses for <span id="selected-niche" class="text-indigo-600">Your Niche</span></h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6" id="recommended-courses">
+                    <!-- Course cards will be dynamically inserted here based on selected niche -->
+                </div>
+            </div>
+            
+            <div>
+                <h2 class="text-2xl font-bold mb-4">Popular Courses</h2>
+                <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    <div class="card bg-white p-5 rounded-lg shadow">
+                        <div class="bg-indigo-100 text-indigo-600 h-40 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-chalkboard-teacher text-4xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">Introduction to UI/UX Design</h3>
+                        <p class="text-gray-600 mb-3">Learn the fundamentals of user interface and experience design</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">Beginner</span>
+                            <span class="text-sm text-gray-500">4.8 ★ (1,245)</span>
+                        </div>
+                    </div>
+                    <div class="card bg-white p-5 rounded-lg shadow">
+                        <div class="bg-indigo-100 text-indigo-600 h-40 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-code text-4xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">JavaScript Fundamentals</h3>
+                        <p class="text-gray-600 mb-3">Master the core concepts of JavaScript programming</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm bg-green-100 text-green-800 px-3 py-1 rounded-full">Beginner</span>
+                            <span class="text-sm text-gray-500">4.9 ★ (2,310)</span>
+                        </div>
+                    </div>
+                    <div class="card bg-white p-5 rounded-lg shadow">
+                        <div class="bg-indigo-100 text-indigo-600 h-40 rounded-lg flex items-center justify-center mb-4">
+                            <i class="fas fa-database text-4xl"></i>
+                        </div>
+                        <h3 class="font-bold text-lg mb-2">SQL & Database Design</h3>
+                        <p class="text-gray-600 mb-3">Learn to design efficient databases and write SQL queries</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm bg-yellow-100 text-yellow-800 px-3 py-1 rounded-full">Intermediate</span>
+                            <span class="text-sm text-gray-500">4.7 ★ (987)</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Dashboard Page -->
+    <section id="dashboard" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-8 text-center">Your Dashboard</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                <div class="lg:col-span-2">
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
+                        <h2 class="text-xl font-bold mb-4">Your Progress</h2>
+                        <div class="space-y-4">
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="font-medium">Current Course: JavaScript Essentials</span>
+                                    <span>68%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 68%"></div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between mb-1">
+                                    <span class="font-medium">Overall Pathway Progress</span>
+                                    <span>42%</span>
+                                </div>
+                                <div class="progress-bar">
+                                    <div class="progress" style="width: 42%"></div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-bold mb-4">Assignments Due</h2>
+                        <div class="space-y-4">
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold">Create a Responsive Landing Page</h3>
+                                        <p class="text-gray-600 text-sm">HTML & CSS Fundamentals</p>
+                                    </div>
+                                    <span class="bg-red-100 text-red-600 text-sm px-3 py-1 rounded-full">Due Tomorrow</span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 75%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="border-b pb-4">
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold">JavaScript Array Methods Exercise</h3>
+                                        <p class="text-gray-600 text-sm">JavaScript Essentials</p>
+                                    </div>
+                                    <span class="bg-yellow-100 text-yellow-600 text-sm px-3 py-1 rounded-full">Due in 3 days</span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 30%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div>
+                                <div class="flex justify-between items-start">
+                                    <div>
+                                        <h3 class="font-bold">Database Schema Design</h3>
+                                        <p class="text-gray-600 text-sm">SQL & Database Fundamentals</p>
+                                    </div>
+                                    <span class="bg-green-100 text-green-600 text-sm px-3 py-1 rounded-full">Due in 7 days</span>
+                                </div>
+                                <div class="mt-2">
+                                    <div class="progress-bar">
+                                        <div class="progress" style="width: 10%"></div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                
+                <div>
+                    <div class="bg-white rounded-lg shadow p-6 mb-6">
+                        <h2 class="text-xl font-bold mb-4">Upcoming Hackathons</h2>
+                        <div class="space-y-6">
+                            <div class="border-b pb-4">
+                                <h3 class="font-bold">Web Innovation Challenge</h3>
+                                <p class="text-gray-600 mb-2">Create a web application that solves a community problem</p>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-indigo-600"><i class="far fa-calendar-alt mr-1"></i> May 15-17, 2023</span>
+                                    <span class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded">Team Event</span>
+                                </div>
+                                <button class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded text-sm w-full">Register Now</button>
+                            </div>
+                            <div>
+                                <h3 class="font-bold">AI & Machine Learning Hackathon</h3>
+                                <p class="text-gray-600 mb-2">Build an AI solution that enhances educational experiences</p>
+                                <div class="flex justify-between text-sm">
+                                    <span class="text-indigo-600"><i class="far fa-calendar-alt mr-1"></i> June 5-7, 2023</span>
+                                    <span class="bg-indigo-100 text-indigo-600 px-2 py-1 rounded">Solo/Team</span>
+                                </div>
+                                <button class="mt-3 bg-indigo-600 text-white px-4 py-2 rounded text-sm w-full">Register Now</button>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-xl font-bold mb-4">Study Streaks</h2>
+                        <div class="text-center mb-4">
+                            <span class="text-5xl font-bold text-indigo-600">12</span>
+                            <p class="text-gray-600">Day Streak</p>
+                        </div>
+                        <div class="grid grid-cols-7 gap-2 mb-4">
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-indigo-600 h-8 rounded-md"></div>
+                            <div class="bg-gray-200 h-8 rounded-md"></div>
+                            <div class="bg-gray-200 h-8 rounded-md"></div>
+                        </div>
+                        <p class="text-center text-sm text-gray-600">Keep learning daily to maintain your streak!</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Roadmap Page -->
+    <section id="roadmap" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-8 text-center">Your Learning Roadmap</h1>
+            
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+                <div id="roadmap-content" class="lg:col-span-2">
+                    <!-- Roadmap content will be loaded here based on selected pathway -->
+                </div>
+                
+                <div>
+                    <div class="bg-white rounded-lg shadow p-6 sticky top-4">
+                        <h2 class="text-xl font-bold mb-4">Skill Pathways</h2>
+                        <div class="space-y-3">
+                            <button class="pathway-btn w-full text-left p-3 rounded border border-gray-200 hover:border-indigo-500 hover:bg-indigo-50 transition" data-pathway="graphic-design">
+                                <i class="fas fa-palette mr-2 text-indigo-500"></i> Graphic Design
+                            </button>
+                            <button class="pathway-btn w-full text-left p-3 rounded border border-gray-200 hover:border-indigo-500 hover:bg-indigo-50 transition" data-pathway="coding">
+                                <i class="fas fa-code mr-2 text-indigo-500"></i> Coding
+                            </button>
+                            <button class="pathway-btn w-full text-left p-3 rounded border border-gray-200 hover:border-indigo-500 hover:bg-indigo-50 transition" data-pathway="web-development">
+                                <i class="fas fa-laptop-code mr-2 text-indigo-500"></i> Web Development
+                            </button>
+                            <button class="pathway-btn w-full text-left p-3 rounded border border-gray-200 hover:border-indigo-500 hover:bg-indigo-50 transition" data-pathway="technical">
+                                <i class="fas fa-cogs mr-2 text-indigo-500"></i> Technical
+                            </button>
+                        </div>
+                        
+                        <div class="mt-8">
+                            <h3 class="font-bold mb-3">Difficulty Level</h3>
+                            <div class="space-y-2">
+                                <label class="flex items-center">
+                                    <input type="radio" name="difficulty" value="beginner" checked class="mr-2">
+                                    <span>Beginner</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="difficulty" value="intermediate" class="mr-2">
+                                    <span>Intermediate</span>
+                                </label>
+                                <label class="flex items-center">
+                                    <input type="radio" name="difficulty" value="advanced" class="mr-2">
+                                    <span>Advanced</span>
+                                </label>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- About Page -->
+    <section id="about" class="page">
+        <div class="container mx-auto px-4 py-8">
+            <h1 class="text-3xl font-bold mb-8 text-center">About EduPlatform</h1>
+            
+            <div class="bg-white rounded-lg shadow-lg overflow-hidden">
+                <div class="md:flex">
+                    <div class="md:w-1/2 p-8">
+                        <h2 class="text-2xl font-bold mb-4">Our Mission</h2>
+                        <p class="mb-4">We believe in the power of education to transform lives and create opportunities. Our platform is designed to provide accessible, high-quality learning experiences for everyone, regardless of their background or previous experience.</p>
+                        <p class="mb-4">Our curated learning paths are designed by industry experts to ensure you're learning the most relevant and in-demand skills in today's rapidly evolving technological landscape.</p>
+                        <p>Whether you're looking to start a new career, advance in your current role, or simply explore a passion project, our platform provides the structure, resources, and community you need to succeed.</p>
+                        
+                        <div class="mt-8">
+                            <h2 class="text-2xl font-bold mb-4">Created By</h2>
+                            <p class="text-xl font-bold text-indigo-600">G-96</p>
+                            <p class="text-gray-600 mt-2">Dedicated to making quality education accessible to everyone through innovative technology solutions.</p>
+                        </div>
+                    </div>
+                    
+                    <div class="md:w-1/2 bg-indigo-600 text-white p-8">
+                        <h2 class="text-2xl font-bold mb-4">Platform Features</h2>
+                        <ul class="space-y-4">
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-3 text-indigo-300"></i>
+                                <div>
+                                    <h3 class="font-bold">Personalized Learning Paths</h3>
+                                    <p class="text-indigo-200">Customized roadmaps based on your interests and goals</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-3 text-indigo-300"></i>
+                                <div>
+                                    <h3 class="font-bold">Interactive Assignments</h3>
+                                    <p class="text-indigo-200">Hands-on projects that reinforce your learning</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-3 text-indigo-300"></i>
+                                <div>
+                                    <h3 class="font-bold">Hackathon Opportunities</h3>
+                                    <p class="text-indigo-200">Real-world challenges to apply your skills</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-3 text-indigo-300"></i>
+                                <div>
+                                    <h3 class="font-bold">Expert Mentorship</h3>
+                                    <p class="text-indigo-200">Guidance from industry professionals</p>
+                                </div>
+                            </li>
+                            <li class="flex items-start">
+                                <i class="fas fa-check-circle mt-1 mr-3 text-indigo-300"></i>
+                                <div>
+                                    <h3 class="font-bold">Community Support</h3>
+                                    <p class="text-indigo-200">Connect with peers on the same learning journey</p>
+                                </div>
+                            </li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Chat Bot -->
+    <div id="chat-bot" class="chat-bot hidden">
+        <button id="chat-toggle" class="bg-indigo-600 text-white rounded-full w-16 h-16 flex items-center justify-center shadow-lg">
+            <i class="fas fa-comment-dots text-2xl"></i>
+        </button>
+    </div>
+
+    <div id="chat-container" class="chat-container">
+        <div class="bg-indigo-600 text-white p-4 flex justify-between items-center">
+            <h3 class="font-bold">Learning Assistant</h3>
+            <button id="close-chat" class="text-white">
+                <i class="fas fa-times"></i>
+            </button>
+        </div>
+        <div class="h-[300px] overflow-y-auto p-4 bg-gray-100" id="chat-messages">
+            <div class="bg-white p-3 rounded-lg shadow mb-3 max-w-[80%]">
+                <p>Hi there! How can I help with your learning journey today?</p>
+            </div>
+        </div>
+        <div class="p-3 border-t flex">
+            <input type="text" id="chat-input" class="flex-1 border rounded-l-lg px-3 py-2 focus:outline-none focus:border-indigo-500" placeholder="Type your message...">
+            <button id="send-message" class="bg-indigo-600 text-white px-4 rounded-r-lg">
+                <i class="fas fa-paper-plane"></i>
+            </button>
+        </div>
+    </div>
+
+    <script>
+        // Global variables
+        let selectedNiche = '';
+        
+        // Page navigation
+        function showPage(pageId) {
+            document.querySelectorAll('.page').forEach(page => {
+                page.classList.remove('active');
+            });
+            document.getElementById(pageId).classList.add('active');
+            
+            // Show/hide chat bot on pages other than login
+            if (pageId === 'login') {
+                document.getElementById('chat-bot').classList.add('hidden');
+                document.getElementById('main-nav').classList.add('hidden');
+            } else {
+                document.getElementById('chat-bot').classList.remove('hidden');
+                document.getElementById('main-nav').classList.remove('hidden');
+                
+                // Update content based on page
+                if (pageId === 'home') {
+                    updateHomeContent();
+                } else if (pageId === 'roadmap') {
+                    updateRoadmapContent(selectedNiche);
+                }
+            }
+        }
+        
+        // Login page functionality
+        document.querySelectorAll('.niche-card').forEach(card => {
+            card.addEventListener('click', function() {
+                // Remove selected class from all cards
+                document.querySelectorAll('.niche-card').forEach(c => {
+                    c.classList.remove('selected');
+                });
+                
+                // Add selected class to clicked card
+                this.classList.add('selected');
+                
+                // Enable login button
+                const loginBtn = document.getElementById('login-btn');
+                loginBtn.classList.remove('opacity-50', 'cursor-not-allowed');
+                loginBtn.removeAttribute('disabled');
+                
+                // Store selected niche
+                selectedNiche = this.getAttribute('data-niche');
+            });
+        });
+        
+        // Login button functionality
+        document.getElementById('login-btn').addEventListener('click', function() {
+            if (selectedNiche) {
+                showPage('home');
+            }
+        });
+        
+        // Logout functionality
+        function logout() {
+            selectedNiche = '';
+            document.querySelectorAll('.niche-card').forEach(card => {
+                card.classList.remove('selected');
+            });
+            const loginBtn = document.getElementById('login-btn');
+            loginBtn.classList.add('opacity-50', 'cursor-not-allowed');
+            loginBtn.setAttribute('disabled', 'disabled');
+            showPage('login');
+        }
+        
+        // Update home content based on selected niche
+        function updateHomeContent() {
+            const nicheDisplay = document.getElementById('selected-niche');
+            const coursesContainer = document.getElementById('recommended-courses');
+            
+            // Format niche name for display
+            let nicheDisplayName = selectedNiche.split('-').map(word => 
+                word.charAt(0).toUpperCase() + word.slice(1)
+            ).join(' ');
+            
+            nicheDisplay.textContent = nicheDisplayName;
+            
+            // Clear previous courses
+            coursesContainer.innerHTML = '';
+            
+            // Add niche-specific courses
+            const courses = getNicheCourses(selectedNiche);
+            courses.forEach(course => {
+                const courseCard = document.createElement('div');
+                courseCard.className = 'card bg-white p-5 rounded-lg shadow';
+                courseCard.innerHTML = `
+                    <div class="bg-indigo-100 text-indigo-600 h-40 rounded-lg flex items-center justify-center mb-4">
+                        <i class="fas ${course.icon} text-4xl"></i>
+                    </div>
+                    <h3 class="font-bold text-lg mb-2">${course.title}</h3>
+                    <p class="text-gray-600 mb-3">${course.description}</p>
+                    <div class="flex justify-between items-center">
+                        <span class="text-sm ${course.levelClass} px-3 py-1 rounded-full">${course.level}</span>
+                        <span class="text-sm text-gray-500">${course.rating} ★ (${course.reviewCount})</span>
+                    </div>
+                `;
+                coursesContainer.appendChild(courseCard);
+            });
+        }
+        
+        // Get courses based on niche
+        function getNicheCourses(niche) {
+            const coursesByNiche = {
+                'graphic-design': [
+                    {
+                        title: 'Fundamentals of Design Theory',
+                        description: 'Learn the core principles that guide effective design',
+                        level: 'Beginner',
+                        levelClass: 'bg-green-100 text-green-800',
+                        rating: '4.7',
+                        reviewCount: '982',
+                        icon: 'fa-object-group'
+                    },
+                    {
+                        title: 'Adobe Photoshop Essentials',
+                        description: 'Master the industry-standard tool for image editing',
+                        level: 'Beginner',
+                        levelClass: 'bg-green-100 text-green-800',
+                        rating: '4.9',
+                        reviewCount: '1,534',
+                        icon: 'fa-image'
+                    },
+                    {
+                        title: 'Typography Mastery',
+                        description: 'The complete guide to typography in design projects',
+                        level: 'Intermediate',
+                        levelClass: 'bg-yellow-100 text-yellow-800',
+                        rating: '4.8',
+                        reviewCount: '763',
+                        icon: 'fa-font'
+                    }
+                ],
+                'coding': [
+                    {
+                        title: 'Python for Beginners',
+                        description: 'Start your coding journey with this versatile language',
+                        level: 'Beginner',
+                        levelClass: 'bg-green-100 text-green-800',
+                        rating: '4.9',
+                        reviewCount: '2,341',
+                        icon: 'fa-python'
+                    },
+                    {
+                        title: 'Data Structures & Algorithms',
+                        description: 'Essential knowledge for efficient software development',
+                        level: 'Intermediate',
+                        levelClass: 'bg-yellow-100 text-yellow-800',
+                        rating: '4.7',
+                        reviewCount: '1,053',
+                        icon: 'fa-sitemap'
+                    },
+                    {
+                        title: 'Machine Learning Foundations',
+                        description: 'Build intelligent systems with Python and TensorFlow',
+                        level: 'Advanced',
+                        levelClass: 'bg-red-100 text-red-800',
+                        rating: '4.8',
+                        reviewCount: '876',
+                        icon: 'fa-brain'
+                    }
+                ],
+                'web-development': [
+                    {
+                        title: 'HTML & CSS Fundamentals',
+                        description: 'Learn to structure and style web pages from scratch',
+                        level: 'Beginner',
+                        levelClass: 'bg-green-100 text-green-800',
+                        rating: '4.9',
+                        reviewCount: '3,245',
+                        icon: 'fa-file-code'
+                    },
+                    {
+                        title: 'JavaScript Essentials',
+                        description: 'Add interactivity and dynamic features to websites',
+                        level: 'Intermediate',
+                        levelClass: 'bg-yellow-100 text-yellow-800',
+                        rating: '4.8',
+                        reviewCount: '2,187',
+                        icon: 'fa-js'
+                    },
+                    {
+                        title: 'React.js Development',
+                        description: 'Build modern web applications with React',
+                        level: 'Intermediate',
+                        levelClass: 'bg-yellow-100 text-yellow-800',
+                        rating: '4.9',
+                        reviewCount: '1,876',
+                        icon: 'fa-react'
+                    }
+                ],
+                'technical': [
+                    {
+                        title: 'Computer Networking Basics',
+                        description: 'Understand how computers communicate in modern networks',
+                        level: 'Beginner',
+                        levelClass: 'bg-green-100 text-green-800',
+                        rating: '4.7',
+                        reviewCount: '1,253',
+                        icon: 'fa-network-wired'
+                    },
+                    {
+                        title: 'Cloud Computing Fundamentals',
+                        description: 'Learn the essentials of cloud infrastructure and services',
+                        level: 'Intermediate',
+                        levelClass: 'bg-yellow-100 text-yellow-800',
+                        rating: '4.8',
+                        reviewCount: '968',
+                        icon: 'fa-cloud'
+                    },
+                    {
+                        title: 'Cybersecurity Principles',
+                        description: 'Protect systems and data from security threats',
+                        level: 'Intermediate',
+                        levelClass: 'bg-yellow-100 text-yellow-800',
+                        rating: '4.9',
+                        reviewCount: '1,432',
+                        icon: 'fa-shield-alt'
+                    }
+                ]
+            };
+            
+            return coursesByNiche[niche] || [];
+        }
+        
+        // Roadmap functionality
+        document.querySelectorAll('.pathway-btn').forEach(btn => {
+            btn.addEventListener('click', function() {
+                const pathway = this.getAttribute('data-pathway');
+                updateRoadmapContent(pathway);
+                
+                // Highlight active button
+                document.querySelectorAll('.pathway-btn').forEach(b => {
+                    b.classList.remove('border-indigo-500', 'bg-indigo-50');
+                });
+                this.classList.add('border-indigo-500', 'bg-indigo-50');
+            });
+        });
+        
+        // Update roadmap content based on selected pathway
+        function updateRoadmapContent(pathway) {
+            const roadmapContent = document.getElementById('roadmap-content');
+            const difficultyLevel = document.querySelector('input[name="difficulty"]:checked').value;
+            
+            let html = '';
+            
+            if (pathway === 'web-development') {
+                html = `
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold mb-6">Web Development Roadmap (${difficultyLevel.charAt(0).toUpperCase() + difficultyLevel.slice(1)})</h2>
+                        
+                        <div class="space-y-8">
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">HTML & CSS Fundamentals</h3>
+                                <p class="text-gray-600 mb-3">Learn the building blocks of the web</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">HTML Structure</h4>
+                                        <p class="text-sm text-gray-600">Learn semantic HTML tags and document structure</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">CSS Styling</h4>
+                                        <p class="text-sm text-gray-600">Master selectors, properties, and layouts</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Responsive Design</h4>
+                                        <p class="text-sm text-gray-600">Create websites that work on all device sizes</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">CSS Frameworks</h4>
+                                        <p class="text-sm text-gray-600">Introduction to Bootstrap and Tailwind CSS</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">JavaScript Essentials</h3>
+                                <p class="text-gray-600 mb-3">Add interactivity to your websites</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">JavaScript Syntax</h4>
+                                        <p class="text-sm text-gray-600">Variables, data types, and control flow</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">DOM Manipulation</h4>
+                                        <p class="text-sm text-gray-600">Interact with HTML elements programmatically</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Event Handling</h4>
+                                        <p class="text-sm text-gray-600">Respond to user actions on your website</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Asynchronous JS</h4>
+                                        <p class="text-sm text-gray-600">Promises, async/await, and API calls</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Frontend Frameworks</h3>
+                                <p class="text-gray-600 mb-3">Build modern, reactive web applications</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">React Fundamentals</h4>
+                                        <p class="text-sm text-gray-600">Components, state, and props</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">React Hooks</h4>
+                                        <p class="text-sm text-gray-600">Functional components and built-in hooks</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">State Management</h4>
+                                        <p class="text-sm text-gray-600">Redux, Context API, and React Query</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">React Router</h4>
+                                        <p class="text-sm text-gray-600">Create multi-page applications with client-side routing</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Backend Development</h3>
+                                <p class="text-gray-600 mb-3">Create server-side applications</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Node.js Basics</h4>
+                                        <p class="text-sm text-gray-600">Server-side JavaScript with Node.js</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Express.js Framework</h4>
+                                        <p class="text-sm text-gray-600">Build RESTful APIs and web servers</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Database Integration</h4>
+                                        <p class="text-sm text-gray-600">Working with MongoDB and SQL databases</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Authentication</h4>
+                                        <p class="text-sm text-gray-600">Implementing user authentication and authorization</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (pathway === 'graphic-design') {
+                html = `
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold mb-6">Graphic Design Roadmap (${difficultyLevel.charAt(0).toUpperCase() + difficultyLevel.slice(1)})</h2>
+                        
+                        <div class="space-y-8">
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Design Fundamentals</h3>
+                                <p class="text-gray-600 mb-3">Master the core principles of visual design</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Color Theory</h4>
+                                        <p class="text-sm text-gray-600">Understanding color relationships and psychology</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Typography</h4>
+                                        <p class="text-sm text-gray-600">Font selection, pairing, and hierarchy</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Composition</h4>
+                                        <p class="text-sm text-gray-600">Layout principles and visual balance</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Design Elements</h4>
+                                        <p class="text-sm text-gray-600">Lines, shapes, textures, and space</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Essential Design Software</h3>
+                                <p class="text-gray-600 mb-3">Learn industry-standard tools</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Adobe Photoshop</h4>
+                                        <p class="text-sm text-gray-600">Image editing and manipulation</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Adobe Illustrator</h4>
+                                        <p class="text-sm text-gray-600">Vector graphics and illustration</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Adobe InDesign</h4>
+                                        <p class="text-sm text-gray-600">Page layout and publishing</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Figma</h4>
+                                        <p class="text-sm text-gray-600">UI/UX design and prototyping</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Specialization Paths</h3>
+                                <p class="text-gray-600 mb-3">Focus on specific design disciplines</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Brand Identity Design</h4>
+                                        <p class="text-sm text-gray-600">Logos, style guides, and brand systems</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">UI/UX Design</h4>
+                                        <p class="text-sm text-gray-600">User interfaces and experiences</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Print Design</h4>
+                                        <p class="text-sm text-gray-600">Publications, packaging, and promotional materials</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Motion Graphics</h4>
+                                        <p class="text-sm text-gray-600">Animated visuals and video effects</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Professional Practice</h3>
+                                <p class="text-gray-600 mb-3">Prepare for a career in graphic design</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Portfolio Development</h4>
+                                        <p class="text-sm text-gray-600">Curating and presenting your work</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Client Communication</h4>
+                                        <p class="text-sm text-gray-600">Working with clients and presenting designs</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Design Thinking</h4>
+                                        <p class="text-sm text-gray-600">Problem-solving and creative processes</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Freelancing Basics</h4>
+                                        <p class="text-sm text-gray-600">Business aspects of design services</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (pathway === 'coding') {
+                html = `
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold mb-6">Coding Roadmap (${difficultyLevel.charAt(0).toUpperCase() + difficultyLevel.slice(1)})</h2>
+                        
+                        <div class="space-y-8">
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Programming Foundations</h3>
+                                <p class="text-gray-600 mb-3">Learn the core concepts of programming</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Python Basics</h4>
+                                        <p class="text-sm text-gray-600">Syntax, data types, and control structures</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Problem-Solving</h4>
+                                        <p class="text-sm text-gray-600">Algorithmic thinking and logical reasoning</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Data Structures</h4>
+                                        <p class="text-sm text-gray-600">Arrays, lists, dictionaries, and sets</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Object-Oriented Programming</h4>
+                                        <p class="text-sm text-gray-600">Classes, objects, inheritance, and polymorphism</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Advanced Programming</h3>
+                                <p class="text-gray-600 mb-3">Deepen your programming knowledge</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Algorithms</h4>
+                                        <p class="text-sm text-gray-600">Sorting, searching, and optimization techniques</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Advanced Data Structures</h4>
+                                        <p class="text-sm text-gray-600">Trees, graphs, and hash tables</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Design Patterns</h4>
+                                        <p class="text-sm text-gray-600">Common patterns for solving software problems</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Software Architecture</h4>
+                                        <p class="text-sm text-gray-600">Designing maintainable and scalable software</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Specialized Tracks</h3>
+                                <p class="text-gray-600 mb-3">Focus on specific programming domains</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Machine Learning</h4>
+                                        <p class="text-sm text-gray-600">Data analysis, model training, and prediction</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Backend Development</h4>
+                                        <p class="text-sm text-gray-600">APIs, databases, and server architectures</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Mobile Development</h4>
+                                        <p class="text-sm text-gray-600">Building apps for iOS and Android</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Game Development</h4>
+                                        <p class="text-sm text-gray-600">Game engines, physics, and game logic</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Professional Skills</h3>
+                                <p class="text-gray-600 mb-3">Essential skills for professional developers</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Version Control</h4>
+                                        <p class="text-sm text-gray-600">Git, GitHub, and collaborative workflows</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Testing & Debugging</h4>
+                                        <p class="text-sm text-gray-600">Unit tests, integration tests, and debugging techniques</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">DevOps Basics</h4>
+                                        <p class="text-sm text-gray-600">CI/CD, deployment, and monitoring</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Code Reviews</h4>
+                                        <p class="text-sm text-gray-600">Best practices for reviewing and improving code</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else if (pathway === 'technical') {
+                html = `
+                    <div class="bg-white rounded-lg shadow p-6">
+                        <h2 class="text-2xl font-bold mb-6">Technical Skills Roadmap (${difficultyLevel.charAt(0).toUpperCase() + difficultyLevel.slice(1)})</h2>
+                        
+                        <div class="space-y-8">
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">IT Fundamentals</h3>
+                                <p class="text-gray-600 mb-3">Core knowledge for technical roles</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Computer Hardware</h4>
+                                        <p class="text-sm text-gray-600">Components, assembly, and troubleshooting</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Operating Systems</h4>
+                                        <p class="text-sm text-gray-600">Windows, Linux, and macOS fundamentals</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Networking Basics</h4>
+                                        <p class="text-sm text-gray-600">IP addressing, protocols, and configuration</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Command Line</h4>
+                                        <p class="text-sm text-gray-600">Working with terminal commands and scripts</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Networking & Security</h3>
+                                <p class="text-gray-600 mb-3">Building and securing networks</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Network Infrastructure</h4>
+                                        <p class="text-sm text-gray-600">Routers, switches, and network design</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Cybersecurity Foundations</h4>
+                                        <p class="text-sm text-gray-600">Security principles and threat models</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Firewalls & VPNs</h4>
+                                        <p class="text-sm text-gray-600">Network protection and secure connections</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Security Assessment</h4>
+                                        <p class="text-sm text-gray-600">Vulnerability scanning and penetration testing</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">Cloud Computing</h3>
+                                <p class="text-gray-600 mb-3">Building and managing cloud infrastructure</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Cloud Concepts</h4>
+                                        <p class="text-sm text-gray-600">Service models and deployment options</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">AWS Fundamentals</h4>
+                                        <p class="text-sm text-gray-600">EC2, S3, and core AWS services</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Cloud Security</h4>
+                                        <p class="text-sm text-gray-600">Securing cloud environments and data</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Containerization</h4>
+                                        <p class="text-sm text-gray-600">Docker, Kubernetes, and orchestration</p>
+                                    </div>
+                                </div>
+                            </div>
+                            
+                            <div class="milestone">
+                                <h3 class="font-bold text-lg">System Administration</h3>
+                                <p class="text-gray-600 mb-3">Managing and optimizing systems</p>
+                                <div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Server Management</h4>
+                                        <p class="text-sm text-gray-600">Setting up and maintaining servers</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Automation with Scripts</h4>
+                                        <p class="text-sm text-gray-600">PowerShell, Bash, and Python automation</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Infrastructure as Code</h4>
+                                        <p class="text-sm text-gray-600">Terraform, Ansible, and configuration management</p>
+                                    </div>
+                                    <div class="bg-gray-50 p-3 rounded border">
+                                        <h4 class="font-medium">Monitoring & Logging</h4>
+                                        <p class="text-sm text-gray-600">Tracking system health and troubleshooting</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                `;
+            } else {
+                html = `
+                    <div class="bg-white rounded-lg shadow p-6 flex items-center justify-center min-h-[400px]">
+                        <p class="text-xl text-gray-600">Please select a skill pathway from the options on the right.</p>
+                    </div>
+                `;
+            }
+            
+            roadmapContent.innerHTML = html;
+        }
+        
+        // Difficulty level change event
+        document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+            radio.addEventListener('change', function() {
+                const activePath = document.querySelector('.pathway-btn.border-indigo-500');
+                if (activePath) {
+                    updateRoadmapContent(activePath.getAttribute('data-pathway'));
+                }
+            });
+        });
+        
+        // Chat bot functionality
+        const chatToggle = document.getElementById('chat-toggle');
+        const chatContainer = document.getElementById('chat-container');
+        const closeChat = document.getElementById('close-chat');
+        const chatInput = document.getElementById('chat-input');
+        const sendMessage = document.getElementById('send-message');
+        const chatMessages = document.getElementById('chat-messages');
+        
+        chatToggle.addEventListener('click', function() {
+            chatContainer.style.display = chatContainer.style.display === 'block' ? 'none' : 'block';
+        });
+        
+        closeChat.addEventListener('click', function() {
+            chatContainer.style.display = 'none';
+        });
+        
+        function sendChatMessage() {
+            const message = chatInput.value.trim();
+            if (message) {
+                // Add user message
+                const userMsg = document.createElement('div');
+                userMsg.className = 'bg-indigo-100 p-3 rounded-lg shadow mb-3 ml-auto max-w-[80%]';
+                userMsg.innerHTML = `<p>${message}</p>`;
+                chatMessages.appendChild(userMsg);
+                
+                // Clear input
+                chatInput.value = '';
+                
+                // Scroll to bottom
+                chatMessages.scrollTop = chatMessages.scrollHeight;
+                
+                // Simulate bot response (in a real app, this would call an API)
+                setTimeout(() => {
+                    const botMsg = document.createElement('div');
+                    botMsg.className = 'bg-white p-3 rounded-lg shadow mb-3 max-w-[80%]';
+                    
+                    // Simple response logic based on keywords
+                    let response = '';
+                    const lowerMsg = message.toLowerCase();
+                    
+                    if (lowerMsg.includes('hello') || lowerMsg.includes('hi')) {
+                        response = 'Hello! How can I help with your learning journey today?';
+                    } else if (lowerMsg.includes('course') || lowerMsg.includes('learn')) {
+                        response = 'We have many courses available for your selected niche. Check out the recommended courses on the home page or explore the roadmap for a structured learning path.';
+                    } else if (lowerMsg.includes('assignment') || lowerMsg.includes('project')) {
+                        response = 'You can find your current assignments on the dashboard page. Make sure to submit them before the due date!';
+                    } else if (lowerMsg.includes('hackathon')) {
+                        response = 'We have upcoming hackathons you can join! Check the dashboard for registration details.';
+                    } else if (lowerMsg.includes('roadmap')) {
+                        response = 'Our roadmaps provide a structured learning path from beginner to advanced levels. Visit the roadmap page to explore the path for your chosen niche.';
+                    } else {
+                        response = 'Thank you for your message. Our team will help you with this question soon. In the meantime, feel free to explore the courses and roadmaps available on the platform.';
+                    }
+                    
+                    botMsg.innerHTML = `<p>${response}</p>`;
+                    chatMessages.appendChild(botMsg);
+                    
+                    // Scroll to bottom
+                    chatMessages.scrollTop = chatMessages.scrollHeight;
+                }, 1000);
+            }
+        }
+        
+        sendMessage.addEventListener('click', sendChatMessage);
+        
+        chatInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendChatMessage();
+            }
+        });
+        
+        // Initialize page
+        document.addEventListener('DOMContentLoaded', function() {
+            // Set default niche roadmap if user has selected a niche
+            if (selectedNiche) {
+                updateRoadmapContent(selectedNiche);
+                document.querySelectorAll('.pathway-btn').forEach(btn => {
+                    if (btn.getAttribute('data-pathway') === selectedNiche) {
+                        btn.classList.add('border-indigo-500', 'bg-indigo-50');
+                    }
+                });
+            }
+        });
+    </script>
+</body>
+</html>
